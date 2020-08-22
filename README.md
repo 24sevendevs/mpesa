@@ -30,6 +30,7 @@ MPESA_CONSUMER_SECRET=
 MPESA_PASSKEY=
 MPESA_SHORTCODE=
 
+MPESA_CALLBACK_URL=https://c0da8d587e6d.ngrok.io/api/promotions/handle-result
 MPESA_MODE=sandbox
 ```
 
