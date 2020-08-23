@@ -22,6 +22,11 @@ class Mpesa
 
     public static function mpesa_express($phone, $amount, $AccountReference, $TransactionDesc)
     {
+        if($phone == "" || $phone == null || $amount == "" || $amount == null || $AccountReference == "" || $AccountReference == null || $TransactionDesc == "" || $TransactionDesc == null){
+            return response()->json([
+                "error" => "invalid data. All parameters must not be null"
+            ], 403);
+        }
         $access_token = Mpesa::get_access_token();
 
         $time = date('YmdHis');
@@ -54,7 +59,7 @@ class Mpesa
         $response = \Http::retry(3, 100)->withHeaders($headers)->post($stkpush_url, $data);
 
 
-        return $response;
+        return json_decode($response, true);
     }
 
     public static function query_request($CheckoutRequestID)
@@ -77,6 +82,6 @@ class Mpesa
             "CheckoutRequestID" => $CheckoutRequestID,
         ];
         $response = \Http::retry(3, 100)->withHeaders($headers)->post($query_url, $data);
-        return $response;
+        return json_decode($response, true);
     }
 }
