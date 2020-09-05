@@ -13,7 +13,7 @@ class Mpesa
         $consumer_secret = \Config::get("mpesa.".config('mpesa.mode').".consumer_secret");
 
 
-        $response = \Http::retry(3, 100)->withBasicAuth($consumer_key, $consumer_secret)->get($token_url);
+        $response = \Zttp::retry(3, 100)->withBasicAuth($consumer_key, $consumer_secret)->get($token_url);
 
         $access_token = json_decode($response, true)['access_token'];
 
@@ -56,7 +56,7 @@ class Mpesa
             "TransactionDesc" => $TransactionDesc
         ];
 
-        $response = \Http::retry(3, 100)->withHeaders($headers)->post($stkpush_url, $data);
+        $response = \Zttp::retry(3, 100)->withHeaders($headers)->post($stkpush_url, $data);
 
 
         return json_decode($response, true);
@@ -81,7 +81,7 @@ class Mpesa
             "Timestamp" => $time,
             "CheckoutRequestID" => $CheckoutRequestID,
         ];
-        $response = \Http::retry(3, 100)->withHeaders($headers)->post($query_url, $data);
+        $response = \Zttp::retry(3, 100)->withHeaders($headers)->post($query_url, $data);
         return json_decode($response, true);
     }
 }
