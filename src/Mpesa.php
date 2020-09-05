@@ -18,6 +18,7 @@ class Mpesa
         $access_token = json_decode($response, true)['access_token'];
 
         return $access_token;
+
     }
 
     public static function mpesa_express($phone, $amount, $AccountReference, $TransactionDesc)
