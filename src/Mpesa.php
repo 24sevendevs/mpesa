@@ -22,12 +22,15 @@ class Mpesa
 
     }
 
-    public static function mpesa_express($phone, $amount, $AccountReference, $TransactionDesc)
+    public static function mpesa_express($phone, $amount, $AccountReference, $TransactionDesc, $callback = null)
     {
         if($phone == "" || $phone == null || $amount == "" || $amount == null || $AccountReference == "" || $AccountReference == null || $TransactionDesc == "" || $TransactionDesc == null){
             return response()->json([
                 "error" => "invalid data. All parameters must not be null"
             ], 403);
+        }
+        if(!$callback){
+            $callback = config('mpesa.callback_url');
         }
         $access_token = Mpesa::get_access_token();
 
@@ -52,8 +55,8 @@ class Mpesa
             "PartyA" => $phone,
             "PartyB" => $shortcode,
             "PhoneNumber" => $phone,
-            "CallBackURL" => config('mpesa.callback_url'),
-            "QueueTimeOutURL" => config('mpesa.callback_url'),
+            "CallBackURL" => $callback,
+            "QueueTimeOutURL" => $callback,
             "AccountReference" => $AccountReference,
             "TransactionDesc" => $TransactionDesc
         ];
