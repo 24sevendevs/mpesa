@@ -16,7 +16,6 @@ class Mpesa
         $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_key");
         $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_secret");
 
-
         $response = Zttp::withBasicAuth($consumer_key, $consumer_secret)->get($token_url);
 
         $access_token = json_decode($response, true)['access_token'];
@@ -46,7 +45,6 @@ class Mpesa
         $headers = [
             'Authorization' => 'Bearer ' . $access_token,
             'Content-Type' => 'application/json',
-            // 'Host: sandbox.safaricom.co.ke'
         ];
         $data = [
             "BusinessShortCode" => $shortcode,
@@ -102,7 +100,6 @@ class Mpesa
         $headers = [
             'Authorization' => 'Bearer ' . $access_token,
             'Content-Type' => 'application/json',
-            // 'Host: sandbox.safaricom.co.ke'
         ];
         $data = [
             "InitiatorName" => $initiator_name,
