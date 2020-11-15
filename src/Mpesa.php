@@ -10,12 +10,17 @@ use function GuzzleHttp\json_decode;
 
 class Mpesa
 {
-    public static function get_access_token()
+    public static function get_access_token($type = "c2b")
     {
-        $token_url = \Config::get("mpesa." . config('mpesa.mode') . ".token_url");
-        $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_key");
-        $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_secret");
+        if ($type == "b2c") {
+            $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_consumer_key");
+            $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_consumer_secret");
+        } else {
+            $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_key");
+            $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_secret");
+        }
 
+        $token_url = \Config::get("mpesa." . config('mpesa.mode') . ".token_url");
         $response = Zttp::withBasicAuth($consumer_key, $consumer_secret)->get($token_url);
 
         $access_token = json_decode($response, true)['access_token'];
@@ -67,11 +72,11 @@ class Mpesa
         return json_decode($response, true);
     }
 
-    public static function c2b($phone, $amount, $occassion, $remarks, $callback = null, $command_id = null)
+    public static function b2c($phone, $amount, $occassion, $remarks, $callback = null, $command_id = null)
     {
         if ($phone == "" || $phone == null || $amount == "" || $amount == null || $occassion == "" || $occassion == null || $remarks == "" || $remarks == null) {
             return response()->json([
-                "error" => "invalid data. All parameters must not be null"
+                "error" => "Invalid data. All parameters must not be null"
             ], 403);
         }
         if (!$callback) {
@@ -84,15 +89,15 @@ class Mpesa
                 "error" => "invalid data. Command ID can only be SalaryPayment, BusinessPayment or PromotionPayment"
             ], 403);
         }
-        $access_token = Mpesa::get_access_token();
+        $access_token = Mpesa::get_access_token("b2c");
 
         $initiator_name = \Config::get("mpesa." . config('mpesa.mode') . ".initiator_name");
         $initiator_password = \Config::get("mpesa." . config('mpesa.mode') . ".initiator_password");
-        $shortcode = \Config::get("mpesa." . config('mpesa.mode') . ".shortcode");
+        $shortcode = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_shortcode");
 
+        //GENERATE SECURITY CREDENTIAL USING THE $publicKey
         $publicKey = file_get_contents(__DIR__ . "/assets/public_keycert.cer");
         openssl_public_encrypt($initiator_password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
-        //GENERATE SECURITY CREDENTIAL USING THE $publicKey
         $security_credential = base64_encode($encrypted);
 
         $b2c_url = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_url");
@@ -101,6 +106,7 @@ class Mpesa
             'Authorization' => 'Bearer ' . $access_token,
             'Content-Type' => 'application/json',
         ];
+
         $data = [
             "InitiatorName" => $initiator_name,
             "SecurityCredential" => $security_credential,
@@ -113,8 +119,10 @@ class Mpesa
             "Remarks" => $remarks,
             "Occassion" => $occassion
         ];
-        $response = Zttp::withHeaders($headers)->post($b2c_url, $data);
 
+        // dd($initiator_password, $data);
+
+        $response = Zttp::withHeaders($headers)->post($b2c_url, $data);
 
         return json_decode($response, true);
     }
