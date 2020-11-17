@@ -95,11 +95,14 @@ class Mpesa
         $initiator_password = \Config::get("mpesa." . config('mpesa.mode') . ".initiator_password");
         $shortcode = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_shortcode");
 
-        //GENERATE SECURITY CREDENTIAL USING THE $publicKey
-        $publicKey = file_get_contents(__DIR__ . "/assets/public_keycert.cer");
-        openssl_public_encrypt($initiator_password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
-        $security_credential = base64_encode($encrypted);
-
+        if (config('mpesa.mode') == "sandbox") {
+            $security_credential = "XMiKlEz4iuquErci7bL3nF/T8Ej5NdrHB4aUvjczqkikaocdTnVw3s1mQlzhMNZqtRSqqEWrQAhQT3OwkiYfHKBf1YUnykxXUo6UO1eXM82+0k6ZEVb90JEAoTvCOK9JEOPEFusqMRtSrxca4gU3qEA0CyLpY3k7ZWLiNisuaWWL2zDJSlRBBz8bn4waOLuLLz3aB1NVQYaxtlLjf6ITah7q2nx2lt1NKCkCImg/e/rKfJTzrmgRHbV2+3MC4t4SKJRwMosHBXd0FjOzFY5IO1/b7EBbwcmMIZMsuyFhnlSvjqolllFc9SToK37h+G5TMhZthJBA3PfkAWyjJK6nqQ==";
+        } else {
+            //GENERATE SECURITY CREDENTIAL USING THE $publicKey
+            $publicKey = file_get_contents(__DIR__ . "/assets/public_keycert.cer");
+            openssl_public_encrypt($initiator_password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
+            $security_credential = base64_encode($encrypted);
+        }
         $b2c_url = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_url");
 
         $headers = [
