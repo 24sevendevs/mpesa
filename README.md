@@ -25,12 +25,19 @@ After publishing you will find config/mpesa.php config file. You can now adjust 
 
 Add the following files to your .env
 ```env
+
 MPESA_CONSUMER_KEY=
 MPESA_CONSUMER_SECRET=
-MPESA_PASSKEY=
 MPESA_SHORTCODE=
+MPESA_PASSKEY=
+MPESA_CALLBACK_URL=
 
-MPESA_CALLBACK_URL=https://c0da8d587e6d.ngrok.io/api/promotions/handle-result
+MPESA_INITIATOR_NAME=
+MPESA_INITIATOR_PASSWORD=
+MPESA_B2C_CONSUMER_KEY=
+MPESA_B2C_CONSUMER_SECRET=
+MPESA_B2C_SHORTCODE=
+
 MPESA_MODE=sandbox
 ```
 
@@ -42,10 +49,24 @@ MPESA_MODE=sandbox
 use TFS\Mpesa\Mpesa;
 
 ...
-$response = Mpesa::mpesa_express($phone, $amount, $AccountReference, $TransactionDesc);
+$response = Mpesa::mpesa_express($phone, $amount, $AccountReference, $TransactionDesc, $callback = null);
 ...
 
 eg.
 
 $response = Mpesa::mpesa_express("254723077827", 1, "AccountReference", "TransactionDesc");
+```
+
+#### B2C
+
+``` php
+use TFS\Mpesa\Mpesa;
+
+...
+$response = Mpesa::b2c($phone, $amount, $occassion, $remarks, $callback = null, $command_id = null);
+...
+
+eg.
+
+$response = Mpesa::b2c("254708374149", 10, "Test occassion", "Test remarks");
 ```
