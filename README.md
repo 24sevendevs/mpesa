@@ -5,7 +5,6 @@
 
 ## This package will enable you to consume Safaricom Mpesa Daraja API with a lot of ease. It is meant for Laravel developers.
 
-
 ## Installing Laravel Mpesa Daraja API package
 
 The recommended way to install the laravel package for Safaricom Mpesa Daraja API is through
@@ -24,6 +23,7 @@ php artisan vendor:publish --provider="TFS\Mpesa\MpesaServiceProvider"
 After publishing you will find config/mpesa.php config file. You can now adjust the configurations appropriately. Additionally, add the configurations to your env for security purposes.
 
 Add the following files to your .env
+
 ```env
 
 MPESA_CONSUMER_KEY=
@@ -45,7 +45,7 @@ MPESA_MODE=sandbox
 
 #### Mpesa Express
 
-``` php
+```php
 use TFS\Mpesa\Mpesa;
 
 ...
@@ -59,7 +59,7 @@ $response = Mpesa::mpesa_express("254723077827", 1, "AccountReference", "Transac
 
 #### B2C
 
-``` php
+```php
 use TFS\Mpesa\Mpesa;
 
 ...
@@ -69,4 +69,29 @@ $response = Mpesa::b2c($phone, $amount, $occassion, $remarks, $callback = null, 
 eg.
 
 $response = Mpesa::b2c("254708374149", 10, "Test occassion", "Test remarks");
+```
+
+#### Balance
+
+```php
+use TFS\Mpesa\Mpesa;
+
+...
+
+$result = Mpesa::balance($partyA, $remarks, $callback, $identifierType, $consumer_key, $consumer_secret, $initiator_name, $initiator_password, $queueTimeOutURL = null);
+...
+
+eg.
+
+$partyA = config('mpesa.live.b2c_shortcode');
+$remarks = "Balance";
+$callback = config('mpesa.balance_callback_url');
+$identifierType = 4; //1 – MSISDN, 2 – Till Number, 4 – Organization short code!
+$consumer_key = config("mpesa." . config('mpesa.mode') . ".b2c_consumer_key");
+$consumer_secret = config("mpesa." . config('mpesa.mode') . ".b2c_consumer_secret");
+$consumer_key = config("mpesa." . config('mpesa.mode') . ".b2c_consumer_key");
+$initiator_name = config("mpesa." . config('mpesa.mode') . ".initiator_name");
+$initiator_password = config("mpesa." . config('mpesa.mode') . ".initiator_password");
+
+$result = Mpesa::balance($partyA, $remarks, $callback, $identifierType, $consumer_key, $consumer_secret, $initiator_name, $initiator_password);
 ```

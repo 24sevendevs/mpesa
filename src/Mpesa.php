@@ -10,14 +10,17 @@ use function GuzzleHttp\json_decode;
 
 class Mpesa
 {
-    public static function get_access_token($type = "c2b")
+    // $consumer_key & $consumer_secretmust mutually null or filled
+    public static function get_access_token($type = "c2b", $consumer_key = null, $consumer_secret = null)
     {
-        if ($type == "b2c") {
-            $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_consumer_key");
-            $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_consumer_secret");
-        } else {
-            $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_key");
-            $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_secret");
+        if ($consumer_key == null || $consumer_secret == null) {
+            if ($type == "b2c") {
+                $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_consumer_key");
+                $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_consumer_secret");
+            } else {
+                $consumer_key = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_key");
+                $consumer_secret = \Config::get("mpesa." . config('mpesa.mode') . ".consumer_secret");
+            }
         }
 
         $token_url = \Config::get("mpesa." . config('mpesa.mode') . ".token_url");
@@ -103,6 +106,7 @@ class Mpesa
             openssl_public_encrypt($initiator_password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
             $security_credential = base64_encode($encrypted);
         }
+
         $b2c_url = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_url");
 
         $headers = [
@@ -126,6 +130,57 @@ class Mpesa
         // dd($initiator_password, $data);
 
         $response = Zttp::withHeaders($headers)->post($b2c_url, $data);
+
+        return json_decode($response, true);
+    }
+
+    public static function balance($partyA, $remarks, $callback, $identifierType, $consumer_key, $consumer_secret, $initiator_name, $initiator_password, $queueTimeOutURL = null) //identifierType:  1 – MSISDN, 2 – Till Number, 4 – Organization short code
+    {
+
+        if ($identifierType != 1 && $identifierType != 2 && $identifierType != 4) {
+            return response()->json([
+                "error" => "invalid Identifier Type. 1 – MSISDN, 2 – Till Number, 4 – Organization short code!"
+            ], 403);
+        }
+        if (!$callback) {
+            $callback = config('mpesa.balance_callback_url');
+        }
+        if (!$queueTimeOutURL) {
+            $queueTimeOutURL = $callback . "/timeout";
+        }
+        $access_token = Mpesa::get_access_token(null, $consumer_key, $consumer_secret);
+
+
+        if (config('mpesa.mode') == "sandbox") {
+            $security_credential = "Qg4AJHmHYUtUux71nfceLzCNwDJuwSsat7l1S33tltRJiRx41IzDwl98s2e9h2x1b99RzD";
+        } else {
+            //GENERATE SECURITY CREDENTIAL USING THE $publicKey
+            $publicKey = file_get_contents(__DIR__ . "/assets/public_keycert.cer");
+            openssl_public_encrypt($initiator_password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
+            $security_credential = base64_encode($encrypted);
+        }
+
+        $balance_url = \Config::get("mpesa." . config('mpesa.mode') . ".balance_url");
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $access_token,
+            'Content-Type' => 'application/json',
+        ];
+
+        $data = [
+            "CommandID" => "AccountBalance",
+            "PartyA" => $partyA,
+            "IdentifierType" => $identifierType,
+            "Remarks" => $remarks,
+            "Initiator" => $initiator_name,
+            "SecurityCredential" => $security_credential,
+            "QueueTimeOutURL" => $queueTimeOutURL,
+            "ResultURL" => $callback,
+        ];
+
+        // dd($initiator_password, $data);
+
+        $response = Zttp::withHeaders($headers)->post($balance_url, $data);
 
         return json_decode($response, true);
     }
