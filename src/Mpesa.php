@@ -2,11 +2,10 @@
 
 namespace TFS\Mpesa;
 
-use Zttp\Zttp;
+use Illuminate\Support\Facades\Http;
 
 use function GuzzleHttp\json_decode;
 
-// use function GuzzleHttp\json_decode;
 
 class Mpesa
 {
@@ -24,11 +23,12 @@ class Mpesa
         }
 
         $token_url = \Config::get("mpesa." . config('mpesa.mode') . ".token_url");
-        $response = Zttp::withBasicAuth($consumer_key, $consumer_secret)->get($token_url);
+        $response = Http::retry(3, 100)->withBasicAuth($consumer_key, $consumer_secret)->get($token_url);
 
         $access_token = json_decode($response, true)['access_token'];
 
         return $access_token;
+
     }
 
     public static function mpesa_express($phone, $amount, $AccountReference, $TransactionDesc, $callback = null)
@@ -69,7 +69,7 @@ class Mpesa
             "TransactionDesc" => $TransactionDesc
         ];
 
-        $response = Zttp::withHeaders($headers)->post($stkpush_url, $data);
+        $response = Http::retry(3, 100)->withHeaders($headers)->post($stkpush_url, $data);
 
 
         return json_decode($response, true);
@@ -129,7 +129,7 @@ class Mpesa
 
         // dd($initiator_password, $data);
 
-        $response = Zttp::withHeaders($headers)->post($b2c_url, $data);
+        $response = Http::retry(3, 100)->withHeaders($headers)->post($b2c_url, $data);
 
         return json_decode($response, true);
     }
@@ -180,11 +180,42 @@ class Mpesa
 
         // dd($initiator_password, $data);
 
-        $response = Zttp::withHeaders($headers)->post($balance_url, $data);
+        $response = Http::retry(3, 100)->withHeaders($headers)->post($balance_url, $data);
 
         return json_decode($response, true);
     }
 
+    public static function c2b_register_url($ValidationURL, $ConfirmationURL, $ResponseType, $ShortCode, $consumer_key = null, $consumer_secret = null)
+    {
+
+
+        $c2b_register_url = \Config::get("mpesa." . config('mpesa.mode') . ".c2b_register_url");
+        if(!($ResponseType == "Completed" || $ResponseType == "Canceled")){
+            return response()->json([
+                "error" => "invalid Response Type. Completed, Canceled!"
+            ], 403);
+        }
+
+        $access_token = Mpesa::get_access_token(null, $consumer_key, $consumer_secret);
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $access_token,
+            'Content-Type' => 'application/json',
+        ];
+
+        $data = [
+            "ValidationURL" => $ValidationURL,
+            "ConfirmationURL" => $ConfirmationURL,
+            "ShortCode" => $ShortCode,
+            "ResponseType" => "Completed",//Canceled
+        ];
+
+        // dd($initiator_password, $data);
+
+        $response = Http::retry(3, 100)->withHeaders($headers)->post($c2b_register_url, $data);
+
+        return json_decode($response, true);
+    }
     public static function query_request($CheckoutRequestID)
     {
         $access_token = Mpesa::get_access_token();
@@ -204,7 +235,7 @@ class Mpesa
             "Timestamp" => $time,
             "CheckoutRequestID" => $CheckoutRequestID,
         ];
-        $response = Zttp::withHeaders($headers)->post($query_url, $data);
+        $response = Http::retry(3, 100)->withHeaders($headers)->post($query_url, $data);
         return json_decode($response, true);
     }
 }

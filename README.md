@@ -95,3 +95,23 @@ $initiator_password = config("mpesa." . config('mpesa.mode') . ".initiator_passw
 
 $result = Mpesa::balance($partyA, $remarks, $callback, $identifierType, $consumer_key, $consumer_secret, $initiator_name, $initiator_password);
 ```
+
+#### C2B Rigister URL
+
+```php
+use TFS\Mpesa\Mpesa;
+
+...
+
+$result = Mpesa::c2b_register_url($ValidationURL, $ConfirmationURL, $ResponseType, $ShortCode, $consumer_key = null, $consumer_secret = null)
+...
+
+eg.
+
+$ValidationURL = "https://24seven.co.ke/api/payments/c2b-validation";
+$ConfirmationURL = "https://24seven.co.ke/api/payments/c2b-confirmation";
+$ResponseType = "Completed";//Canceled
+$ShortCode = config("mpesa." . config('mpesa.mode') . ".shortcode");
+
+$result = Mpesa::balance($partyA, $remarks, $callback, $identifierType, $consumer_key, $consumer_secret, $initiator_name, $initiator_password, $queueTimeOutURL = null);
+```

@@ -17,8 +17,9 @@ return [
         'stkquery_url' => env('MPESA_SANDBOX_STKPUSHQUERY_URL', 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query'),
         'balance_url' => env('MPESA_SANDBOX_BALANCE_URL', 'https://sandbox.safaricom.co.ke/mpesa/accountbalance/v1/query'),
         'b2c_url' => env('MPESA_SANDBOX_B2C_URL', 'https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest'),
+        'c2b_register_url' => env('MPESA_SANDBOX_C2B_REGISTER_URL', 'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl'),
         'passkey' => env('MPESA_SANDBOX_PASSKEY', 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'),
-        'shortcode' => env('MPESA_SANDBOX_SHORTCODE', '174379'),
+        'shortcode' => env('MPESA_SANDBOX_SHORTCODE', '174379'),//C2B
         'initiator_name' => env('MPESA_SANDBOX_INITIATOR_NAME', 'apiop46'),
         'c2b_initiator_name' => env('MPESA_SANDBOX_C2B_INITIATOR_NAME', 'testapi'),
         'initiator_password' => env('MPESA_SANDBOX_INITIATOR_PASSWORD', 'Safaricom3003#'),
@@ -35,6 +36,7 @@ return [
         'stkquery_url' => env('MPESA_STKPUSHQUERY_URL', 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query'),
         'balance_url' => env('MPESA_BALANCE_URL', 'https://api.safaricom.co.ke/mpesa/accountbalance/v1/query'),
         'b2c_url' => env('MPESA_B2C_URL', 'https://api.safaricom.co.ke/mpesa/b2c/v1/paymentrequest'),
+        'c2b_register_url' => env('MPESA_C2B_REGISTER_URL', 'https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl'),
         'passkey' => env('MPESA_PASSKEY', ''),
         'shortcode' => env('MPESA_SHORTCODE', ''),
         'initiator_name' => env('MPESA_INITIATOR_NAME', ''),
