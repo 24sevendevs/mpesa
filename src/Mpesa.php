@@ -237,11 +237,7 @@ class Mpesa
             "OffSetValue" => $OffSetValue,
         ];
 
-        // dd($initiator_password, $data);
-
         $response = Http::retry(3, 100)->withHeaders($headers)->post($c2b_pull_transactions_url, $data);
-
-        dd(json_decode($response, true));
 
         return json_decode($response, true);
     }
