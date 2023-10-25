@@ -9,7 +9,7 @@ use function GuzzleHttp\json_decode;
 
 class Mpesa
 {
-    // $consumer_key & $consumer_secretmust mutually null or filled
+    // $consumer_key & $consumer_secret must mutually null or filled
     public static function get_access_token($type = "c2b", $consumer_key = null, $consumer_secret = null)
     {
         if ($consumer_key == null || $consumer_secret == null) {
@@ -28,7 +28,6 @@ class Mpesa
         $access_token = json_decode($response, true)['access_token'];
 
         return $access_token;
-
     }
 
     public static function mpesa_express($phone, $amount, $AccountReference, $TransactionDesc, $callback = null)
@@ -190,7 +189,7 @@ class Mpesa
 
 
         $c2b_register_url = \Config::get("mpesa." . config('mpesa.mode') . ".c2b_register_url");
-        if(!($ResponseType == "Completed" || $ResponseType == "Canceled")){
+        if (!($ResponseType == "Completed" || $ResponseType == "Canceled")) {
             return response()->json([
                 "error" => "invalid Response Type. Completed, Canceled!"
             ], 403);
@@ -207,7 +206,7 @@ class Mpesa
             "ValidationURL" => $ValidationURL,
             "ConfirmationURL" => $ConfirmationURL,
             "ShortCode" => $ShortCode,
-            "ResponseType" => "Completed",//Canceled
+            "ResponseType" => "Completed", //Canceled
         ];
 
         // dd($initiator_password, $data);
@@ -216,6 +215,37 @@ class Mpesa
 
         return json_decode($response, true);
     }
+
+    public static function c2b_pull_transactions($ShortCode, $StartDate, $EndDate, $OffSetValue = "0")
+    {
+        $c2b_pull_transactions_url = \Config::get("mpesa." . config('mpesa.mode') . ".c2b_pull_transactions_url");
+
+        $access_token = Mpesa::get_access_token();
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $access_token,
+            'Content-Type' => 'application/json',
+        ];
+
+        // "StartDate":"2023-10-25 00:00:00",
+        // "EndDate":"2023-10-25 23:07:00",
+
+        $data = [
+            "ShortCode" => $ShortCode,
+            "StartDate" => $StartDate,
+            "EndDate" => $EndDate,
+            "OffSetValue" => $OffSetValue,
+        ];
+
+        // dd($initiator_password, $data);
+
+        $response = Http::retry(3, 100)->withHeaders($headers)->post($c2b_pull_transactions_url, $data);
+
+        dd(json_decode($response, true));
+
+        return json_decode($response, true);
+    }
+
     public static function query_request($CheckoutRequestID)
     {
         $access_token = Mpesa::get_access_token();
