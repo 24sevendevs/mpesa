@@ -190,7 +190,7 @@ class Mpesa
 
 
         $c2b_register_url = \Config::get("mpesa." . config('mpesa.mode') . ".c2b_register_url");
-        if(!($ResponseType == "Completed" || $ResponseType == "Canceled")){
+        if (!($ResponseType == "Completed" || $ResponseType == "Canceled")) {
             return response()->json([
                 "error" => "invalid Response Type. Completed, Canceled!"
             ], 403);
@@ -207,15 +207,33 @@ class Mpesa
             "ValidationURL" => $ValidationURL,
             "ConfirmationURL" => $ConfirmationURL,
             "ShortCode" => $ShortCode,
-            "ResponseType" => "Completed",//Canceled
+            "ResponseType" => "Completed", //Canceled
         ];
 
-        // dd($initiator_password, $data);
+        // dd($c2b_register_url, $data, $access_token);
 
-        $response = Http::retry(3, 100)->withHeaders($headers)->post($c2b_register_url, $data);
+
+        try {
+            $response = Http::retry(3, 100)->withHeaders($headers)->post($c2b_register_url, $data);
+
+            $response->throw(); // This will throw an exception if the request fails
+
+        } catch (RequestException $e) {
+            Log::error('HTTP Request Exception:', [
+                'status' => $e->response->status(),
+                'body' => $e->response->body(),
+                'headers' => $e->response->headers(),
+            ]);
+
+            return [
+                'status' => false,
+                'message' => $e->response->body()
+            ]; // Dump the full error response
+        }
 
         return json_decode($response, true);
     }
+    
     public static function query_request($CheckoutRequestID)
     {
         $access_token = Mpesa::get_access_token();
