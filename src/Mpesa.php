@@ -134,6 +134,68 @@ class Mpesa
         return json_decode($response, true);
     }
 
+    public static function b2b($PartyB, $amount, $occassion, $remarks, $callback = null, $command_id = null, $AccountReference = null, $Requester = null)
+    {
+        if ($PartyB == "" || $PartyB == null || $amount == "" || $amount == null || $occassion == "" || $occassion == null || $remarks == "" || $remarks == null) {
+            return response()->json([
+                "error" => "Invalid data. All parameters must not be null"
+            ], 403);
+        }
+        if (!$callback) {
+            $callback = config('mpesa.callback_url');
+        }
+        if (!$command_id) {
+            $command_id = "BusinessPayBill";
+        } elseif ($command_id != "SalaryPayment" && $command_id != "BusinessPayBill" && $command_id != "PromotionPayment") {
+            return response()->json([
+                "error" => "invalid data. Command ID can only be SalaryPayment, BusinessPayBill or PromotionPayment"
+            ], 403);
+        }
+        $access_token = Mpesa::get_access_token("b2c");
+
+        $initiator_name = \Config::get("mpesa." . config('mpesa.mode') . ".initiator_name");
+        $initiator_password = \Config::get("mpesa." . config('mpesa.mode') . ".initiator_password");
+        $shortcode = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_shortcode");
+
+        if (config('mpesa.mode') == "sandbox") {
+            $security_credential = "XMiKlEz4iuquErci7bL3nF/T8Ej5NdrHB4aUvjczqkikaocdTnVw3s1mQlzhMNZqtRSqqEWrQAhQT3OwkiYfHKBf1YUnykxXUo6UO1eXM82+0k6ZEVb90JEAoTvCOK9JEOPEFusqMRtSrxca4gU3qEA0CyLpY3k7ZWLiNisuaWWL2zDJSlRBBz8bn4waOLuLLz3aB1NVQYaxtlLjf6ITah7q2nx2lt1NKCkCImg/e/rKfJTzrmgRHbV2+3MC4t4SKJRwMosHBXd0FjOzFY5IO1/b7EBbwcmMIZMsuyFhnlSvjqolllFc9SToK37h+G5TMhZthJBA3PfkAWyjJK6nqQ==";
+        } else {
+            //GENERATE SECURITY CREDENTIAL USING THE $publicKey
+            $publicKey = file_get_contents(__DIR__ . "/assets/public_keycert.cer");
+            openssl_public_encrypt($initiator_password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
+            $security_credential = base64_encode($encrypted);
+        }
+
+        $b2c_url = \Config::get("mpesa." . config('mpesa.mode') . ".b2c_url");
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $access_token,
+            'Content-Type' => 'application/json',
+        ];
+
+        $data = [
+            "Initiator" => $initiator_name,
+            "SecurityCredential" => $security_credential,
+            "Command ID" => $command_id,
+            "SenderIdentifierType" => 4, // For this API, only "4" is allowed.
+            "PartyA" => $shortcode,
+            "PartyB" => $PartyB,
+            "AccountReference" => $AccountReference,
+            "Amount" => $amount,
+            "ResultURL" => $callback,
+            "QueueTimeOutURL" => $callback . "/timeout",
+            "Remarks" => $remarks,
+            "Occassion" => $occassion,
+            "Requester" => $Requester,
+        ];
+
+        // dd($initiator_password, $data);
+
+        $response = Http::retry(3, 100)->withHeaders($headers)->post($b2c_url, $data);
+
+        return json_decode($response, true);
+    }
+
     public static function balance($partyA, $remarks, $callback, $identifierType, $consumer_key, $consumer_secret, $initiator_name, $initiator_password, $queueTimeOutURL = null) //identifierType:  1 – MSISDN, 2 – Till Number, 4 – Organization short code
     {
 
