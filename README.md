@@ -18,11 +18,27 @@ A modern, clean, and comprehensive Laravel package for integrating with Safarico
 - ✅ **Exception Handling** - Clear error messages
 - ✅ **PHP 7.4+ Support** - Modern PHP with backward compatibility
 
-## Installation
+## Requirements
 
-Install via Composer:
+- **PHP**: 7.4 | 8.0 | 8.1 | 8.2 | 8.3
+- **Laravel**: 7.x | 8.x | 9.x | 10.x | 11.x
+- **Guzzle**: 7.x
+
+## Version Compatibility
+
+| Package Version | PHP Version | Laravel Version |
+|----------------|-------------|-----------------|
+| 3.x            | 7.4 - 8.3   | 7.x - 11.x     |
+| 2.x            | 7.2 - 8.1   | 6.x - 9.x      |
+| 1.x            | 7.2 - 7.4   | 6.x - 8.x      |
+
+## Installation
 ```bash
-composer require tfs/mpesa
+# For Laravel 7.x - 11.x
+composer require tfs/mpesa:^3.0
+
+# For older Laravel versions
+composer require tfs/mpesa:^2.0
 ```
 
 Publish the configuration file:
