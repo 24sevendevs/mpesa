@@ -24,11 +24,14 @@ class MpesaClient
      */
     public function getAccessToken(string $type = 'c2b'): string
     {
-        $cacheKey = "mpesa_token_{$this->mode}_{$type}";
+        $consumerKey = $this->getConfig($type === 'b2c' ? 'b2c_consumer_key' : 'consumer_key');
+        $consumerSecret = $this->getConfig($type === 'b2c' ? 'b2c_consumer_secret' : 'consumer_secret');
+
+        $cacheKey = "mpesa_token_{$consumerKey}_{$consumerSecret}";
+
 
         return Cache::remember($cacheKey, 3500, function () use ($type) {
-            $consumerKey = $this->getConfig($type === 'b2c' ? 'b2c_consumer_key' : 'consumer_key');
-            $consumerSecret = $this->getConfig($type === 'b2c' ? 'b2c_consumer_secret' : 'consumer_secret');
+
             $tokenUrl = $this->getConfig('token_url');
 
             $response = Http::retry(3, 100)
@@ -40,7 +43,7 @@ class MpesaClient
             }
 
             $data = $response->json();
-            
+
             if (!isset($data['access_token'])) {
                 throw new MpesaException("Access token not found in response");
             }

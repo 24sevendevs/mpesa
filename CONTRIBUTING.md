@@ -47,4 +47,4 @@ Please use the GitHub issue tracker and include:
 
 ## Security Vulnerabilities
 
-Please email security issues to: security@yourpackage.com
+Please email security issues to: info@24seven.co.ke
