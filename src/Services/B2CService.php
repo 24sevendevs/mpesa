@@ -14,16 +14,19 @@ class B2CService
     protected MpesaClient $client;
     protected const VALID_COMMAND_IDS = ['SalaryPayment', 'BusinessPayment', 'PromotionPayment'];
 
-    /**
-     * Key mapping from camelCase to snake_case
-     */
-    protected array $keyMap = [
-        'commandId' => 'command_id',
-    ];
-
     public function __construct(MpesaClient $client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Key mapping from camelCase to snake_case
+     */
+    protected function getKeyMap(): array
+    {
+        return [
+            'commandId' => 'command_id',
+        ];
     }
 
     /**

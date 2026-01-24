@@ -13,19 +13,22 @@ class B2BService
 
     protected MpesaClient $client;
 
-    /**
-     * Key mapping from camelCase to snake_case
-     */
-    protected array $keyMap = [
-        'partyB' => 'party_b',
-        'accountReference' => 'account_reference',
-        'originatorConversationId' => 'originator_conversation_id',
-        'commandId' => 'command_id',
-    ];
-
     public function __construct(MpesaClient $client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Key mapping from camelCase to snake_case
+     */
+    protected function getKeyMap(): array
+    {
+        return [
+            'partyB' => 'party_b',
+            'accountReference' => 'account_reference',
+            'originatorConversationId' => 'originator_conversation_id',
+            'commandId' => 'command_id',
+        ];
     }
 
     /**

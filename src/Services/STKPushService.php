@@ -13,18 +13,21 @@ class STKPushService
 
     protected MpesaClient $client;
 
-    /**
-     * Key mapping from camelCase to snake_case
-     */
-    protected array $keyMap = [
-        'accountReference' => 'account_reference',
-        'transactionDesc' => 'transaction_desc',
-        'checkoutRequestId' => 'checkout_request_id',
-    ];
-
     public function __construct(MpesaClient $client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Key mapping from camelCase to snake_case
+     */
+    protected function getKeyMap(): array
+    {
+        return [
+            'accountReference' => 'account_reference',
+            'transactionDesc' => 'transaction_desc',
+            'checkoutRequestId' => 'checkout_request_id',
+        ];
     }
 
     /**
@@ -36,26 +39,6 @@ class STKPushService
      * @param string|null $transactionDesc
      * @param string|null $callback
      * @return array
-     *
-     * Usage (PHP 7.4 - Array):
-     *   $service->push([
-     *       'phone' => '254712345678',
-     *       'amount' => '100',
-     *       'account_reference' => 'INV-123',
-     *       'transaction_desc' => 'Payment',
-     *       'callback' => 'https://...' // optional
-     *   ]);
-     *
-     * Usage (PHP 8.x - Named Arguments):
-     *   $service->push(
-     *       phone: '254712345678',
-     *       amount: '100',
-     *       accountReference: 'INV-123',
-     *       transactionDesc: 'Payment'
-     *   );
-     *
-     * Usage (Positional - Both versions):
-     *   $service->push('254712345678', '100', 'INV-123', 'Payment');
      */
     public function push(
         $params,
@@ -98,22 +81,11 @@ class STKPushService
         return $this->client->post($url, $payload);
     }
 
-
-
     /**
      * Query STK Push status
      *
      * @param array|string $params Array of parameters or checkout request ID
      * @return array
-     *
-     * Usage (PHP 7.4 - Array):
-     *   $service->query(['checkout_request_id' => 'ws_CO_123...']);
-     *
-     * Usage (PHP 8.x - Named Arguments):
-     *   $service->query(checkoutRequestId: 'ws_CO_123...');
-     *
-     * Usage (Positional - Both versions):
-     *   $service->query('ws_CO_123...');
      */
     public function query($params): array
     {

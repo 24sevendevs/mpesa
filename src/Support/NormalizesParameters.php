@@ -7,25 +7,31 @@ namespace TFS\Mpesa\Support;
  *
  * Usage:
  *   1. Add `use NormalizesParameters;` in your service class
- *   2. Define `protected array $keyMap = [...]` with camelCase => snake_case mappings
+ *   2. Implement `getKeyMap()` method returning camelCase => snake_case mappings
  *   3. Call `$this->normalizeParams($params, [...], 'first_key')` in your methods
  *   4. Use `$this->getParam($data, 'key', $default)` to retrieve values
  */
 trait NormalizesParameters
 {
     /**
-     * Key mapping from camelCase to snake_case
+     * Get key mapping from camelCase to snake_case
      * Override this in your service class
      *
      * Example:
-     *   protected array $keyMap = [
-     *       'accountReference' => 'account_reference',
-     *       'transactionDesc' => 'transaction_desc',
-     *   ];
+     *   protected function getKeyMap(): array
+     *   {
+     *       return [
+     *           'accountReference' => 'account_reference',
+     *           'transactionDesc' => 'transaction_desc',
+     *       ];
+     *   }
      *
-     * @var array
+     * @return array
      */
-    protected array $keyMap = [];
+    protected function getKeyMap(): array
+    {
+        return [];
+    }
 
     /**
      * Normalize parameters from various input formats
@@ -72,10 +78,11 @@ trait NormalizesParameters
     protected function normalizeKeys(array $params): array
     {
         $normalized = [];
+        $keyMap = $this->getKeyMap();
 
         foreach ($params as $key => $value) {
             // Check if key needs mapping
-            $normalizedKey = $this->keyMap[$key] ?? $key;
+            $normalizedKey = $keyMap[$key] ?? $key;
             $normalized[$normalizedKey] = $value;
         }
 

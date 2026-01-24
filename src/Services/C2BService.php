@@ -12,19 +12,22 @@ class C2BService
 
     protected MpesaClient $client;
 
-    /**
-     * Key mapping from camelCase to snake_case
-     */
-    protected array $keyMap = [
-        'validationUrl' => 'validation_url',
-        'confirmationUrl' => 'confirmation_url',
-        'responseType' => 'response_type',
-        'shortCode' => 'short_code',
-    ];
-
     public function __construct(MpesaClient $client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Key mapping from camelCase to snake_case
+     */
+    protected function getKeyMap(): array
+    {
+        return [
+            'validationUrl' => 'validation_url',
+            'confirmationUrl' => 'confirmation_url',
+            'responseType' => 'response_type',
+            'shortCode' => 'short_code',
+        ];
     }
 
     /**

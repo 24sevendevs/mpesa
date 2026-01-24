@@ -12,17 +12,20 @@ class BalanceService
 
     protected MpesaClient $client;
 
-    /**
-     * Key mapping from camelCase to snake_case
-     */
-    protected array $keyMap = [
-        'partyA' => 'party_a',
-        'identifierType' => 'identifier_type',
-    ];
-
     public function __construct(MpesaClient $client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Key mapping from camelCase to snake_case
+     */
+    protected function getKeyMap(): array
+    {
+        return [
+            'partyA' => 'party_a',
+            'identifierType' => 'identifier_type',
+        ];
     }
 
     /**
