@@ -39,7 +39,7 @@ class MpesaClient
         // Cache key based on actual credentials used
         $cacheKey = "mpesa_token_" . md5($consumerKey . $consumerSecret);
 
-        return Cache::remember($cacheKey, 3500, function () use ($consumerKey, $consumerSecret) {
+        return Cache::remember($cacheKey, 1000, function () use ($consumerKey, $consumerSecret) {
             $tokenUrl = $this->getConfig('token_url');
 
             if (empty($tokenUrl)) {
