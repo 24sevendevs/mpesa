@@ -13,8 +13,9 @@ A modern Laravel package for Safaricom's M-Pesa Daraja API. Supports **PHP 7.4+*
 - ✅ **Account Balance** - Check your M-Pesa balance
 - ✅ **C2B URL Registration** - Register validation/confirmation URLs
 - ✅ **Dual API Style** - Arrays (PHP 7.4+) or Named Arguments (PHP 8.0+)
-- ✅ **Token Caching** - Automatic access token management
+- ✅ **Token Caching** - Automatic access token management, cached for the token's real ~1 hour lifetime
 - ✅ **Custom Auth** - Override credentials per transaction
+- ✅ **Configurable Timeouts** - All API calls have a bounded timeout, so a slow/unresponsive Safaricom endpoint fails predictably instead of hanging indefinitely
 
 ## Requirements
 
@@ -35,9 +36,22 @@ Publish configuration:
 php artisan vendor:publish --provider="TFS\Mpesa\MpesaServiceProvider"
 ```
 
-## Usage Styles
+## Configuration
 
-This package supports **two parameter styles** for maximum compatibility:
+The published `config/mpesa.php` file has a callback URL per API type. Set whichever ones you actually use:
+
+| Config key | Env variable | Used by |
+|---|---|---|
+| `callback_url` | `MPESA_CALLBACK_URL` | STK Push, and the default fallback for B2C/B2B if their own keys aren't set |
+| `b2c_callback_url` | `MPESA_B2C_CALLBACK_URL` | B2C payments |
+| `b2b_callback_url` | `MPESA_B2B_CALLBACK_URL` | B2B PayBill/BuyGoods |
+| `balance_callback_url` | `MPESA_BALANCE_CALLBACK_URL` | Account balance queries |
+
+**Set a dedicated callback URL for every API type you use, rather than relying on the shared fallback.** If a B2C call doesn't get an explicit `callback` (either passed directly or via `b2c_callback_url`), it silently falls back to the same URL as STK Push — meaning a B2C result could get routed to your deposit-handling route instead of your withdrawal-handling route, and the money movement would never get resolved on your end even though Safaricom processed it correctly.
+
+Every outbound API call also has a 10-second connect timeout and a 45-second total timeout — these aren't currently configurable via `config/mpesa.php`, so if your use case needs a different value, adjust `MpesaClient::post()`/`getAccessToken()` directly for now.
+
+## Usage Styles
 
 ### Style 1: Array Parameters (PHP 7.4+)
 
@@ -116,7 +130,7 @@ $response = Mpesa::stkQuery('ws_CO_123456');
 
 ### B2C (Business to Customer)
 
-Send money to a customer:
+Send money to a customer. Uses `b2c_callback_url` from config if set, otherwise falls back to the shared `callback_url` — see the Configuration section above for why setting a dedicated one is recommended:
 
 ```php
 // PHP 7.4+ (Array)
@@ -310,4 +324,4 @@ Both `camelCase` and `snake_case` keys are supported in arrays:
 | `identifierType` | `identifier_type` | Balance identifier |
 | `originatorConversationId` | `originator_conversation_id` | Pochi conversation ID |
 | `validationUrl` | `validation_url` | C2B validation URL |
-| `confirmationUrl` | `confirmation_url
+| `confirmationUrl` | `confirmation_url` | C2B confirmation URL |` | C2B confirmation URL |
