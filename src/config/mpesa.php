@@ -3,6 +3,8 @@
 return [
     'mode' => env('MPESA_MODE', 'live'),
     'callback_url' => env('MPESA_CALLBACK_URL'),
+    'b2c_callback_url' => env('MPESA_B2C_CALLBACK_URL'),
+    'b2b_callback_url' => env('MPESA_B2B_CALLBACK_URL'),
     'balance_callback_url' => env('MPESA_BALANCE_CALLBACK_URL'),
     
     'sandbox' => [

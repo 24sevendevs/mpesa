@@ -39,7 +39,7 @@ class MpesaClient
         // Cache key based on actual credentials used
         $cacheKey = "mpesa_token_" . md5($consumerKey . $consumerSecret);
 
-        return Cache::remember($cacheKey, 1000, function () use ($consumerKey, $consumerSecret) {
+        return Cache::remember($cacheKey, 3540, function () use ($consumerKey, $consumerSecret) {
             $tokenUrl = $this->getConfig('token_url');
 
             if (empty($tokenUrl)) {
@@ -47,6 +47,8 @@ class MpesaClient
             }
 
             $response = Http::retry(3, 100)
+                ->connectTimeout(10)
+                ->timeout(45)
                 ->withBasicAuth($consumerKey, $consumerSecret)
                 ->get($tokenUrl);
 
@@ -120,6 +122,8 @@ class MpesaClient
                 'Authorization' => "Bearer {$accessToken}",
                 'Content-Type' => 'application/json',
             ])
+            ->connectTimeout(10)
+            ->timeout(45)
             ->post($url, $data);
 
         if (!$response->successful()) {

@@ -87,7 +87,7 @@ class B2CService
         $commandId = $data['command_id'] ?? 'BusinessPayment';
         $this->validateCommandId($commandId);
 
-        $callback = $data['callback'] ?? config('mpesa.callback_url');
+        $callback = $data['callback'] ?? config('mpesa.b2c_callback_url') ?? config('mpesa.callback_url');
         $shortcode = $data['shortcode'] ?? $this->client->getConfig('b2c_shortcode');
         $url = $this->client->getConfig('b2c_url');
 
