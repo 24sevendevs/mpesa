@@ -2,7 +2,7 @@
 
 namespace TFS\Mpesa;
 
-use TFS\Mpesa\Services\{B2CService, B2BService, C2BService, STKPushService, BalanceService};
+use TFS\Mpesa\Services\{B2CService, B2BService, C2BService, STKPushService, BalanceService, TransactionStatusService};
 use TFS\Mpesa\Exceptions\MpesaException;
 
 class Mpesa
@@ -131,7 +131,8 @@ class Mpesa
         ?string $remarks = null,
         ?string $callback = null,
         ?string $commandId = null,
-        ?array $auth = null
+        ?array $auth = null,
+        ?string $originatorConversationId = null
     ): array {
         if (is_array($params) && isset($params['auth'])) {
             $auth = $params['auth'];
@@ -139,7 +140,7 @@ class Mpesa
         }
 
         return (new B2CService(new MpesaClient($auth)))->pay(
-            $params, $amount, $occasion, $remarks, $callback, $commandId
+            $params, $amount, $occasion, $remarks, $callback, $commandId, null, $originatorConversationId
         );
     }
 
@@ -324,6 +325,47 @@ class Mpesa
 
         return (new C2BService(new MpesaClient($auth)))->registerUrls(
             $params, $confirmationUrl, $responseType, $shortCode
+        );
+    }
+
+    /**
+     * Query the status of a transaction — needs either transactionId (the
+     * M-Pesa receipt) or originalConversationId (an OriginatorConversationID
+     * from the original request). Async: this call's response only
+     * confirms acceptance, the actual status arrives via a separate
+     * callback at ResultURL.
+     *
+     * Usage (PHP 7.4 - Array):
+     *   Mpesa::transactionStatus([
+     *       'party_a' => '600782',
+     *       'original_conversation_id' => 'WD123-abcdEFGH',
+     *       'remarks' => 'Reconciling withdrawal #123',
+     *   ]);
+     *
+     * Usage (PHP 8.x - Named Arguments):
+     *   Mpesa::transactionStatus(
+     *       partyA: '600782',
+     *       originalConversationId: 'WD123-abcdEFGH',
+     *       remarks: 'Reconciling withdrawal #123'
+     *   );
+     */
+    public static function transactionStatus(
+        $params,
+        ?string $transactionId = null,
+        ?string $originalConversationId = null,
+        ?string $remarks = null,
+        ?string $occasion = null,
+        ?int $identifierType = null,
+        ?string $callback = null,
+        ?array $auth = null
+    ): array {
+        if (is_array($params) && isset($params['auth'])) {
+            $auth = $params['auth'];
+            unset($params['auth']);
+        }
+
+        return (new TransactionStatusService(new MpesaClient($auth)))->query(
+            $params, $transactionId, $originalConversationId, $remarks, $occasion, $identifierType, $callback
         );
     }
 

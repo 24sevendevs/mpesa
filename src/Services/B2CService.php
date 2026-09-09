@@ -26,11 +26,12 @@ class B2CService
     {
         return [
             'commandId' => 'command_id',
+            'originatorConversationId' => 'originator_conversation_id',
         ];
     }
 
     /**
-     * Execute B2C payment
+     * Execute B2C payment (v3 endpoint)
      *
      * @param array|string $params Array of parameters or phone number
      * @param string|null $amount
@@ -39,6 +40,14 @@ class B2CService
      * @param string|null $callback
      * @param string|null $commandId
      * @param string|null $shortcode
+     * @param string|null $originatorConversationId Unique per-request ID —
+     *     v3 requires this to prevent double disbursement, and Safaricom
+     *     itself rejects a duplicate. PASS YOUR OWN, generated and stored
+     *     BEFORE calling this method, if you need to reconcile a request
+     *     whose response never arrives (Transaction Status API accepts
+     *     this ID). Auto-generated here only as a fallback for callers who
+     *     don't need that — an ID you can't already look up defeats the
+     *     purpose of setting one at all.
      * @return array
      *
      * Usage (PHP 7.4 - Array):
@@ -49,6 +58,7 @@ class B2CService
      *       'remarks' => 'Monthly salary',
      *       'command_id' => 'SalaryPayment', // optional
      *       'callback' => 'https://...',     // optional
+     *       'originator_conversation_id' => 'WD123_abc', // optional — see above
      *   ]);
      *
      * Usage (PHP 8.x - Named Arguments):
@@ -70,7 +80,8 @@ class B2CService
         ?string $remarks = null,
         ?string $callback = null,
         ?string $commandId = null,
-        ?string $shortcode = null
+        ?string $shortcode = null,
+        ?string $originatorConversationId = null
     ): array {
         // Normalize parameters
         $data = $this->normalizeParams($params, [
@@ -80,6 +91,7 @@ class B2CService
             'callback' => $callback,
             'command_id' => $commandId,
             'shortcode' => $shortcode,
+            'originator_conversation_id' => $originatorConversationId,
         ], 'phone');
 
         $this->validateParams($data);
@@ -91,7 +103,13 @@ class B2CService
         $shortcode = $data['shortcode'] ?? $this->client->getConfig('b2c_shortcode');
         $url = $this->client->getConfig('b2c_url');
 
+        // v3 requires this and Safaricom rejects a duplicate — see the
+        // param doc above for why callers should generate + store their
+        // own rather than rely on this fallback.
+        $originatorConversationId = $data['originator_conversation_id'] ?? ('PKG-' . uniqid());
+
         $payload = [
+            'OriginatorConversationID' => $originatorConversationId,
             'InitiatorName' => $this->client->getConfig('initiator_name'),
             'SecurityCredential' => $this->client->generateSecurityCredential(),
             'CommandID' => $commandId,

@@ -73,6 +73,7 @@ class MpesaServiceProvider extends ServiceProvider
             'TFS\Mpesa\Services\STKPushService',
             'TFS\Mpesa\Services\BalanceService',
             'TFS\Mpesa\Services\C2BService',
+            'TFS\Mpesa\Services\TransactionStatusService',
         ];
 
         foreach ($services as $service) {
@@ -97,6 +98,7 @@ class MpesaServiceProvider extends ServiceProvider
             'TFS\Mpesa\Services\STKPushService',
             'TFS\Mpesa\Services\BalanceService',
             'TFS\Mpesa\Services\C2BService',
+            'TFS\Mpesa\Services\TransactionStatusService',
         ];
     }
 }

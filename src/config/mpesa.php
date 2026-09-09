@@ -6,6 +6,7 @@ return [
     'b2c_callback_url' => env('MPESA_B2C_CALLBACK_URL'),
     'b2b_callback_url' => env('MPESA_B2B_CALLBACK_URL'),
     'balance_callback_url' => env('MPESA_BALANCE_CALLBACK_URL'),
+    'transaction_status_callback_url' => env('MPESA_TRANSACTION_STATUS_CALLBACK_URL'),
     
     'sandbox' => [
         'consumer_key' => env('MPESA_SANDBOX_CONSUMER_KEY'),
@@ -22,10 +23,11 @@ return [
         'stkpush_url' => 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
         'stkquery_url' => 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query',
         'balance_url' => 'https://sandbox.safaricom.co.ke/mpesa/accountbalance/v1/query',
-        'b2c_url' => 'https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest',
+        'b2c_url' => 'https://sandbox.safaricom.co.ke/mpesa/b2c/v3/paymentrequest',
         'b2b_url' => 'https://sandbox.safaricom.co.ke/mpesa/b2b/v1/paymentrequest',
         'b2pochi_url' => 'https://sandbox.safaricom.co.ke/mpesa/b2pochi/v1/paymentrequest',
         'c2b_register_url' => 'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl',
+        'transactionstatus_url' => 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query',
     ],
     
     'live' => [
@@ -43,9 +45,10 @@ return [
         'stkpush_url' => 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
         'stkquery_url' => 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query',
         'balance_url' => 'https://api.safaricom.co.ke/mpesa/accountbalance/v1/query',
-        'b2c_url' => 'https://api.safaricom.co.ke/mpesa/b2c/v1/paymentrequest',
+        'b2c_url' => 'https://api.safaricom.co.ke/mpesa/b2c/v3/paymentrequest',
         'b2b_url' => 'https://api.safaricom.co.ke/mpesa/b2b/v1/paymentrequest',
         'b2pochi_url' => 'https://api.safaricom.co.ke/mpesa/b2pochi/v1/paymentrequest',
         'c2b_register_url' => 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl',
+        'transactionstatus_url' => 'https://api.safaricom.co.ke/mpesa/transactionstatus/v1/query',
     ],
 ];
